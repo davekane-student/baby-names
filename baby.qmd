@@ -1,0 +1,64 @@
+---
+title: "Baby Names Analysis"
+format: html
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+library(tidyverse)
+```
+
+```{r}
+#| label: load-data
+files <- list.files("data", pattern = "^yob.*\\.txt$", full.names = TRUE)
+
+baby_names <- read_csv(
+  files,
+  id = "file",
+  col_names = c("name", "sex", "n"),
+  show_col_types = FALSE
+) |>
+  mutate(year = parse_number(basename(file)))
+```
+
+Over the last 100 years, the popularity of the name **David** surged during the post-World War II baby boom, peaking in 1955 with over 86,000 babies. Since the 1960s, its popularity has experienced a long, steady decline.
+
+```{r}
+#| label: plot-david
+baby_names |>
+  filter(name == "David", year >= max(year) - 100) |>
+  group_by(year) |>
+  summarize(total = sum(n)) |>
+  ggplot(aes(x = year, y = total)) +
+  geom_line(color = "steelblue", linewidth = 1) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title = "Popularity of the Name 'David' Over the Last 100 Years",
+    x = "Year",
+    y = "Number of Babies"
+  ) +
+  theme_minimal()
+```
+
+At its peak in the mid-1950s, more than 2% of all registered baby names in the United States were David.
+
+```{r}
+#| label: plot-david-percent
+baby_names |>
+  group_by(year) |>
+  summarize(pct_david = sum(n[name == "David"]) / sum(n)) |>
+  ggplot(aes(x = year, y = pct_david)) +
+  geom_line(color = "darkred", linewidth = 1) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.5)) +
+  labs(
+    title = "Percentage of All Baby Names That Are 'David'",
+    x = "Year",
+    y = "Percentage of All Babies"
+  ) +
+  theme_minimal()
+```
+
