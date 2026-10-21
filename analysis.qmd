@@ -1,0 +1,39 @@
+---
+title: "Baby Names Analysis"
+format: html
+execute:
+  echo: false
+  message: false
+  warning: false
+---
+
+```{r}
+library(tidyverse)
+
+names_df <- read_csv(
+  "ssa-baby-names.csv",
+  col_types = cols(
+    year = col_integer(),
+    name = col_character(),
+    sex = col_character(),
+    count = col_integer()
+  )
+)
+```
+
+```{r}
+names_df |>
+  filter(name == "David") |>
+  summarize(count = sum(count), .by = year) |>
+  ggplot(aes(x = year, y = count)) +
+  geom_line(linewidth = 1, color = "steelblue") +
+  scale_y_continuous(labels = scales::label_comma()) +
+  labs(
+    title = "Popularity of the Name 'David' in the U.S. (1880–2025)",
+    subtitle = "Annual number of babies named David recorded by the Social Security Administration",
+    x = "Year",
+    y = "Number of Babies",
+    caption = "Source: U.S. Social Security Administration"
+  ) +
+  theme_minimal()
+```
